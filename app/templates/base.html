@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}YouTube AutoDownloader{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <a href="/" class="logo">
+                    <i class="fab fa-youtube"></i>
+                    <span>YouTube AutoDownloader</span>
+                </a>
+            </div>
+            
+            <nav class="navbar-menu">
+                <ul>
+                    <li><a href="/" class="{% if request.path == '/' %}active{% endif %}"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="{{ url_for('main.queue') }}" class="{% if request.path == '/queue' %}active{% endif %}"><i class="fas fa-list"></i> Queue</a></li>
+                    <li><a href="{{ url_for('main.history') }}" class="{% if request.path == '/history' %}active{% endif %}"><i class="fas fa-history"></i> History</a></li>
+                    {% if username %}
+                    <li class="dropdown">
+                        <a href="#" class="user-menu">
+                            <img src="https://ui-avatars.com/api/?name={{ username }}&background=random" alt="User" class="avatar">
+                            <span>{{ username }}</span>
+                            <i class="fas fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{{ url_for('user.settings') }}" class="btn">Account Settings</a><i class="fas fa-cog"></i> Settings</a></li>
+                            <li><a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li><a href="{{ url_for('auth.login') }}"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                    <li><a href="{{ url_for('auth.signup') }}"><i class="fas fa-user-plus"></i> Sign Up</a></li>
+                    {% endif %}
+                    <li>
+                        <button id="theme-toggle" class="theme-toggle">
+                            <i class="fas fa-sun"></i>
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+            
+            <button class="navbar-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">
+                            {{ message }}
+                            <button class="flash-close"><i class="fas fa-times"></i></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3>YouTube AutoDownloader</h3>
+                    <p>Download YouTube videos and audio quickly and easily</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Navigation</h4>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="{{ url_for('main.queue') }}">Download Queue</a></li>
+                        <li><a href="{{ url_for('main.history') }}">Download History</a></li>
+                        <li><a href="/about">About</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Account</h4>
+                    <ul>
+                        <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+                        <li><a href="{{ url_for('auth.signup') }}">Sign Up</a></li>
+                        <li><a href="{{ url_for('user.settings') }}" class="btn">Account Settings</a></li>
+                        <li><a href="/privacy">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 YouTube AutoDownloader. All rights reserved.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-github"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-discord"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Retry/resume functionality
+    document.querySelectorAll('.retry-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const taskId = this.dataset.taskid;
+            fetch("{{ url_for('main.retry_task') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `task_id=${taskId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + (data.error || 'Failed to retry task'));
+                }
+            });
+        });
+    });
+});
+</script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

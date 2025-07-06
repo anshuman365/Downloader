@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Download Queue{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Download Queue</h1>
+    {% if username %}
+    <div class="user-greeting">
+        <img src="https://ui-avatars.com/api/?name={{ username }}&background=random" alt="User">
+        <span>Welcome, {{ username }}!</span>
+    </div>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2>Current Download Queue</h2>
+        <div class="status queued">{{ tasks|length }} items</div>
+    </div>
+    
+    <div class="nav">
+        <a href="/" class="btn"><i class="fas fa-plus"></i> Add New Download</a>
+        <a href="{{ url_for('main.history') }}" class="btn btn-outline"><i class="fas fa-history"></i> View History</a>
+    </div>
+    
+    {% if tasks %}
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Input</th>
+                    <th>Type</th>
+                    <th>Quality</th>
+                    <th>Progress</th>
+                    <th>Status</th>
+                    <th>Added At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr>
+                    <td>{{ task.input|default('') }}</td>
+                    <td>{{ task.media_type|default('')|upper }}</td>
+                    <td>{{ task.quality|default('')|upper }}</td>
+                    <td>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: {{ task.progress|default(0) }}%"></div>
+                        </div>
+                        <small>{{ task.progress|default(0) }}%</small>
+                    </td>
+                    <td>
+                        <span class="status {{ task.status|default('') }}">
+                            {{ task.status|default('')|upper }}{% if task.error %}: {{ task.error }}{% endif %}
+                        </span>
+                    </td>
+                    <td>{{ task.timestamp|format_time }}</td>
+                    <td>
+                        {% if task.status == 'processing' %}
+                        <form action="{{ url_for('main.pause_task') }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="task_id" value="{{ task.id }}">
+                            <button type="submit" class="btn btn-sm btn-outline" title="Pause">
+                                <i class="fas fa-pause"></i>
+                            </button>
+                        </form>
+                        {% elif task.status == 'paused' %}
+                        <form action="{{ url_for('main.resume_task') }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="task_id" value="{{ task.id }}">
+                            <button type="submit" class="btn btn-sm btn-outline" title="Resume">
+                                <i class="fas fa-play"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                        
+                        <form action="{{ url_for('main.delete_task') }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="task_id" value="{{ task.id }}">
+                            <button type="submit" class="btn btn-sm btn-outline" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-list"></i>
+        <h3>No downloads in queue</h3>
+        <p>Add new items to get started</p>
+        <a href="/" class="btn"><i class="fas fa-plus"></i> Add New Download</a>
+    </div>
+    {% endif %}
+    
+    <div class="security-info">
+        <p><i class="fas fa-shield-alt"></i> Your downloads are processed securely and privately</p>
+    </div>
+</div>
+{% endblock %}

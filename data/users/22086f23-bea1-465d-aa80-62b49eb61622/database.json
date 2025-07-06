@@ -1,0 +1,25 @@
+{
+  "queue": [],
+  "history": [
+    {
+      "id": "task-1751793122558",
+      "input": "https://www.youtube.com/watch?v=KGn-erOG-Bs",
+      "url": "https://www.youtube.com/watch?v=KGn-erOG-Bs",
+      "file": "LAAL PARI (Song)\uff1a Yo Yo Honey Singh \uff5c Sajid Nadiadwala \uff5c Tarun Mansukhani \uff5c Housefull 5 - 6th June_64kk.mp3",
+      "type": "audio",
+      "quality": "64k",
+      "status": "completed",
+      "timestamp": "2025-07-06T14:43:04.651057"
+    },
+    {
+      "id": "task-1751794883446",
+      "input": "https://www.youtube.com/watch?v=KGn-erOG-Bs",
+      "url": "https://www.youtube.com/watch?v=KGn-erOG-Bs",
+      "file": "LAAL_PARI_(Song)__Yo_Yo_Honey_Singh___Sajid_Nadiadwala___Tarun_Mansukhani___Housefull_5_-_6th_June_64kk.mp3",
+      "type": "audio",
+      "quality": "64k",
+      "status": "completed",
+      "timestamp": "2025-07-06T15:11:54.006677"
+    }
+  ]
+}

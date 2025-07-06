@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Download History{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Download History</h1>
+    {% if username %}
+    <div class="user-greeting">
+        <img src="https://ui-avatars.com/api/?name={{ username }}&background=random" alt="User">
+        <span>Welcome, {{ username }}!</span>
+    </div>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2>Your Download History</h2>
+        <div class="status completed">{{ tasks|length }} items</div>
+    </div>
+    
+    <div class="nav">
+        <a href="/" class="btn"><i class="fas fa-plus"></i> Add New Download</a>
+        <a href="{{ url_for('main.queue') }}" class="btn btn-outline"><i class="fas fa-list"></i> View Queue</a>
+    </div>
+    
+    {% if tasks %}
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Input</th>
+                    <th>Type</th>
+                    <th>Quality</th>
+                    <th>Status</th>
+                    <th>File</th>
+                    <th>Completed At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+{% for task in tasks|reverse %}
+<tr>
+    <td>{{ task.input|default('') }}</td>
+    <td>{{ task.type|default('')|upper }}</td>
+    <td>{{ task.quality|default('')|upper }}</td>
+    <td>
+        <span class="status {{ task.status|default('') }}">
+            {{ task.status|default('')|upper }}
+        </span>
+    </td>
+<td>
+    {% if task.status == 'completed' and task.file %}
+    <a href="{{ url_for('main.download_file', filename=task.file) }}" class="btn btn-sm" download>
+        <i class="fas fa-download"></i> Download
+    </a>
+    {% elif task.status == 'interrupted' %}
+    <button class="btn btn-sm btn-outline retry-btn" data-taskid="{{ task.id }}">
+        <i class="fas fa-redo"></i> Resume
+    </button>
+    {% endif %}
+</td>
+    <td>{{ task.timestamp|format_time }}</td>
+    <td>
+        <button class="btn btn-sm btn-outline">
+            <i class="fas fa-redo"></i> Redownload
+        </button>
+    </td>
+</tr>
+{% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-inbox"></i>
+        <h3>No download history</h3>
+        <p>Your completed downloads will appear here</p>
+        <a href="/" class="btn"><i class="fas fa-plus"></i> Add New Download</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
